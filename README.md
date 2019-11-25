@@ -1,2 +1,2 @@
 # aifin
-Some Implementation for Adances In Financial Machine Learning
+Some Implementation for Advances In Financial Machine Learning
