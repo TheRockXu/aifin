@@ -9,4 +9,7 @@ setup(name='aifin',
       author_email='percyxu@hotmail.com',
       url='aitroopers.com',
       packages=['aifin'],
+            install_requires=[
+            'pandas','scipy'
+      ]
      )
