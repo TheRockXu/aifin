@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='aifin',
-      version='1.0',
+      version='1.0.1',
       description='Python Distribution Utilities',
       author='Rocky Xu',
       author_email='percyxu@hotmail.com',
