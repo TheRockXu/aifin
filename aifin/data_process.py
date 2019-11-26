@@ -100,22 +100,21 @@ def get_events(close, t_events, trgt, min_ret, t1, side=None):
     :param t1: t1, vertical barrier
     :return: a event dataframe
     """
+# Find the first barrier touch
     trgt = trgt.loc[t_events]
     trgt = trgt[trgt > min_ret]
 
-    if side is None:
-        side_ = pd.Series(pd.NaT, index=trgt.index)
-    else:
-        side_ = side.loc[trgt.index]
+    side_ = pd.Series(1., index=trgt.index)
+    
     # form events object, apply stop loss on t1
-
-    events = pd.concat({'t1': t1, 'trgt': trgt, 'side': side_}, axis=1).dropna(subset=['trgt'])
-
+    
+    events = pd.concat({'t1':t1, 'trgt':trgt, 'side':side_}, axis=1).dropna(subset=['trgt'])
+    
     df0 = apply_ptsl_on_t1(close, events)
 
     events['t1'] = df0.dropna(how='all').min(axis=1)
-    if side is None:
-        events = events.drop('side', axis=1)
+    events = events.drop('side', axis=1)
+    
     return events
 
 
@@ -131,24 +130,19 @@ def get_bins(events, close):
     :return: a labeled data
     """
     # 1) prices aligned with events
-
+    
     events_ = events.dropna(subset=['t1'])
-
-    px = events_.index.union(
-        events_['t1'].values).drop_duplicates()  # get all the dates from both event starts and ends.
-    px = close.reindex(px,
-                       method='bfill')  # reindex close with all the dates of event, meaning to get the price at these dates.
-
+    
+    px = events_.index.union(events_['t1'].values).drop_duplicates() # get all the dates from both event starts and ends. 
+    px = close.reindex(px, method='bfill') # reindex close with all the dates of event, meaning to get the price at these dates.
+    
     # 2) create out object
-
-    out = pd.DataFrame(index=events_.index)  # create a df with the index of events
+    
+    out = pd.DataFrame(index=events_.index) # create a df with the index of events
     # find price of at end point of event. find price at beg of event. calculate return
-    out['ret'] = px.loc[events_['t1'].values].values / px.loc[events_.index] - 1
-    if 'side' in events_:
-        out['ret'] *= events_['side']
+    out['ret'] = px.loc[events_['t1'].values].values / px.loc[events_.index] - 1 
     out['bin'] = np.sign(out['ret'])
-    if 'side' in events_:
-        out.loc[out['ret'] < 0, 'bin'] = 0
+    
     return out
 
 
