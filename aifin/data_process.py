@@ -72,7 +72,7 @@ def get_t1(close, t_events, num_days):
     return t1
 
 
-def apply_ptsl_on_t1(close, events):
+def apply_ptsl_on_t1(close,  events, pt=1, sl=1):
     """
     Apply profit taking and stop loss on events dataframe
     :param close: raw price dataframe
@@ -80,8 +80,8 @@ def apply_ptsl_on_t1(close, events):
     :return:
     """
     out = events[['t1']].copy(deep=True)
-    pt = events['trgt']
-    sl = - events['trgt']
+    pt = pt*events['trgt']
+    sl = - sl*events['trgt']
     for loc, t1 in events['t1'].iteritems():
         df0 = close[loc:t1]  # path prices
         df0 = (df0 / close[loc] - 1) * events.at[loc, 'side']
@@ -90,7 +90,7 @@ def apply_ptsl_on_t1(close, events):
     return out
 
 
-def get_events(close, t_events, trgt, min_ret, t1, side=None):
+def get_events(close, t_events, trgt, min_ret, t1, side=None, pt_sl=(1,1)):
     """
     Find the first barrier touch with triple barrier method
     :param close: raw price
@@ -110,7 +110,7 @@ def get_events(close, t_events, trgt, min_ret, t1, side=None):
     
     events = pd.concat({'t1':t1, 'trgt':trgt, 'side':side_}, axis=1).dropna(subset=['trgt'])
     
-    df0 = apply_ptsl_on_t1(close, events)
+    df0 = apply_ptsl_on_t1(close, events, pt=pt_sl[0], sl=pt_sl[1])
 
     events['t1'] = df0.dropna(how='all').min(axis=1)
     events = events.drop('side', axis=1)
