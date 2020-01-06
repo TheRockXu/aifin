@@ -82,7 +82,7 @@ def apply_ptsl_on_t1(close,  events, pt=1, sl=1):
     out = events[['t1']].copy(deep=True)
     pt = pt*events['trgt']
     sl = - sl*events['trgt']
-    for loc, t1 in events['t1'].iteritems():
+    for loc, t1 in events['t1'].dropna().iteritems():
         df0 = close[loc:t1]  # path prices
         df0 = (df0 / close[loc] - 1) * events.at[loc, 'side']
         out.loc[loc, 'sl'] = df0[df0 < sl[loc]].index.min()
