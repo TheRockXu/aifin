@@ -198,11 +198,11 @@ def map_sample_w(t1, num_co_events, close):
 
 
 
-def frac_diff(series, d, thres=0.01):
+def frac_diff(dataframe, d, thres=0.01):
 
     """
     Perform Standard Fracdiff - Expanding Window
-    :param series:
+    :param dataframe:
     :param d:
     :param thres:
     :return:
@@ -218,7 +218,7 @@ def frac_diff(series, d, thres=0.01):
             w.append(w_)
         w = np.array(w[::-1]).reshape(-1, 1)
         return w
-    w = get_weights(d, series.shape[0])
+    w = get_weights(d, dataframe.shape[0])
 
     # Determine initial calcs to be skipped based on weight loss threshold
     w_ = np.cumsum(abs(w))
@@ -227,10 +227,11 @@ def frac_diff(series, d, thres=0.01):
 
     # Apply weights to values
     df = {}
+    series.index.tz = None
 
-    for name in series.columns:
+    for name in dataframe.columns:
 
-        series_f = series[[name]].fillna(method='ffill').dropna()
+        series_f = dataframe[[name]].fillna(method='ffill').dropna()
         df_ = pd.Series()
 
         for iloc in range(skip, series_f.shape[0]):
